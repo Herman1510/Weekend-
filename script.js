@@ -1,23 +1,30 @@
-// Timer set to 2 minutes (120,000 milliseconds)
+// Timer configuration (2 minutes)
 const countDownTime = 2 * 60 * 1000;
-const countDownDate = new Date().getTime() + countDownTime;
+let countDownDate = new Date().getTime() + countDownTime;
+let timer;
+let isSubmitted = false; // Prevent multiple submissions
 
 // Start countdown timer
-const timer = setInterval(function() {
+function startTimer() {
+    updateTimerDisplay();
+    timer = setInterval(updateTimerDisplay, 1000);
+}
+
+function updateTimerDisplay() {
     const now = new Date().getTime();
     const distance = countDownDate - now;
 
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    const minutes = Math.max(0, Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
+    const seconds = Math.max(0, Math.floor((distance % (1000 * 60)) / 1000));
 
     document.getElementById("countdown").innerHTML = `Time Left: ${minutes}m ${seconds}s`;
 
     if (distance < 0) {
         clearInterval(timer);
         document.getElementById("countdown").innerHTML = "Time is up!";
-        submitQuiz();  // Auto-submit when timer ends
+        if (!isSubmitted) submitQuiz();
     }
-}, 1000);
+}
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -33,52 +40,67 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 // Correct Answers
-const correctAnswers = {
-    q1: "d",
-    q2: "c"
-};
+const correctAnswers = { q1: "d", q2: "c" };
 
-// Function to submit the quiz
+// Submit quiz function
 function submitQuiz() {
-    if (document.getElementById("quizForm").style.display === "none") return; // Prevent multiple submissions
+    if (isSubmitted) return;
+    isSubmitted = true;
+    clearInterval(timer);
 
-    let studentName = document.getElementById("studentName").value || "Anonymous";
-    let q1 = document.querySelector('input[name="q1"]:checked');
-    let q2 = document.querySelector('input[name="q2"]:checked');
-
-    let answers = {
+    const studentName = document.getElementById("studentName").value || "Anonymous";
+    const answers = {
         name: studentName,
-        q1: q1 ? q1.value : "No Answer",
-        q2: q2 ? q2.value : "No Answer",
+        q1: getSelectedValue('q1'),
+        q2: getSelectedValue('q2'),
         timestamp: new Date().toISOString()
     };
 
-    let score = 0;
-    if (answers.q1 === correctAnswers.q1) score++;
-    if (answers.q2 === correctAnswers.q2) score++;
+    const score = calculateScore(answers);
+    const grade = getGrade(score);
 
-    let grade = score === 2 ? "A" : score === 1 ? "B" : "F";
+    saveResults({ ...answers, score, grade });
+    displayResults(studentName, score, grade);
+    hideQuizForm();
+}
 
-    answers.score = score;
-    answers.grade = grade;
+// Helper functions
+function getSelectedValue(questionName) {
+    const selected = document.querySelector(`input[name="${questionName}"]:checked`);
+    return selected ? selected.value : "No Answer";
+}
 
-    // Save results to Firebase
-    database.ref("quizResults").push(answers)
-        .then(() => {
-            document.getElementById("quizForm").style.display = "none";
-            document.getElementById("result").innerHTML = `
-                <h3>Quiz Submitted!</h3>
-                <p>Name: ${studentName}</p>
-                <p>Score: ${score}/2</p>
-                <p>Grade: ${grade}</p>
-            `;
-        })
+function calculateScore(answers) {
+    return ['q1', 'q2'].reduce((acc, q) => acc + (answers[q] === correctAnswers[q] ? 1 : 0), 0);
+}
+
+function getGrade(score) {
+    return score === 2 ? "A" : score === 1 ? "B" : "F";
+}
+
+function saveResults(results) {
+    database.ref("quizResults").push(results)
         .catch(error => console.error("Error saving to database:", error));
 }
 
-// Event listener for manual form submission
+function displayResults(name, score, grade) {
+    document.getElementById("result").innerHTML = `
+        <h3>Quiz Submitted!</h3>
+        <p>Name: ${name}</p>
+        <p>Score: ${score}/2</p>
+        <p>Grade: ${grade}</p>
+    `;
+}
+
+function hideQuizForm() {
+    document.getElementById("quizForm").style.display = "none";
+}
+
+// Event listeners
 document.getElementById("quizForm").addEventListener("submit", function(event) {
     event.preventDefault();
     submitQuiz();
-    clearInterval(timer);  // Stop timer when manually submitted
 });
+
+// Initialize timer when page loads
+startTimer();
