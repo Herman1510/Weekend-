@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz with Timer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Biochemistry & Pathology Quiz</h2>
+    <div id="countdown">Loading...</div>
+    <form id="quizForm">
+        <label for="studentName">Name:</label>
+        <input type="text" id="studentName" required><br><br>
+
+        <p>1. Which of the following is NOT a condition treated with stem cells?</p>
+        <input type="radio" name="q1" value="a"> Spinal cord injuries<br>
+        <input type="radio" name="q1" value="b"> Leukemia<br>
+        <input type="radio" name="q1" value="c"> Heart diseases<br>
+        <input type="radio" name="q1" value="d"> Aging<br><br>
+
+        <p>2. The epithelial tissue found in bronchi and urinary bladder in vitamin A deficiency is replaced by?</p>
+        <input type="radio" name="q2" value="a"> Simple squamous epithelium<br>
+        <input type="radio" name="q2" value="b"> Simple cuboidal epithelium<br>
+        <input type="radio" name="q2" value="c"> Stratified squamous epithelium<br>
+        <input type="radio" name="q2" value="d"> Stratified cuboidal epithelium<br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <div id="result"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
