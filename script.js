@@ -26,15 +26,16 @@ function updateTimerDisplay() {
     }
 }
 
-// Firebase Configuration
+// Firebase Configuration (YOUR CONFIG INCLUDED)
 const firebaseConfig = {
-    apiKey: "AIzaSyBVEMqQEwLmpzCwGQdQdQOfuc1CLceg7TX4M",
+    apiKey: "AIzaSyBVEMqQEwLmpzCwGQdQOfuc1CLceg7TX4M",
     authDomain: "herman-e5894.firebaseapp.com",
     databaseURL: "https://herman-e5894-default-rtdb.firebaseio.com",
     projectId: "herman-e5894",
     storageBucket: "herman-e5894.appspot.com",
     messagingSenderId: "17968105226",
-    appId: "1:17968105226:web:d7c2852d574327495a1cf3"
+    appId: "1:17968105226:web:d7c2852d574327495a1cf3",
+    measurementId: "G-06YG1L3YWT"
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
